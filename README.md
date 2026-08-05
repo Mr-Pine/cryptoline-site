@@ -6,6 +6,20 @@
 3. `hugo server --navigateToChanged`
 4. Preview at `http://localhost:1313/`
 
+## With Nix
+
+`flake.nix` pins a Hugo close to the one the GitHub Pages workflow uses, so
+there is nothing to install:
+
+1. `git submodule update --init --recursive`
+2. `nix develop`
+3. `hugo server --navigateToChanged`
+4. Preview at `http://localhost:1313/`
+
+To build the site the way CI does, run `nix build '.?submodules=1'`; the
+`?submodules=1` is needed because the theme is a submodule. The rendered site
+lands in `./result`.
+
 # Writing
 
 1. `hugo new docs/file.md`
