@@ -49,6 +49,10 @@ The type \\(\uint 1\\) is also written as \\(\bit\\).
   \end{array}
 \\]
 
+These are the types of scalar values.
+\\(\cryptoline\\) additionally has vector types, which are described in
+[Vectors](#vectors) below.
+
 A *constant* is an integer, a binary number, a hexadecimal
 number, a named constant, or arithmetic expressions over constants.
 
@@ -370,6 +374,152 @@ Instructions \\(\iadd\\), \\(\iadds\\), \\(\iadc\\), \\(\iadcs\\), \\(\isub\\), 
 and signed versions with prefix "u" or "s".
 For example, \\(\iuadd\\) and \\(\isadd\\) are respectively unsigned and
 signed versions of \\(\iadd\\).
+
+### Vectors
+
+\\(\cryptoline\\) also supports *vectors*, that is, fixed-length sequences
+of values of a common type.
+Vectors are meant for modeling SIMD instructions, where one machine
+instruction operates on several lanes of a wide register at once.
+A vector is not a new kind of value.
+A vector variable of type \\(t[n]\\) is expanded into \\(n\\) scalar variables
+of type \\(t\\), and a vector instruction is expanded into \\(n\\) scalar
+instructions, one per element.
+Everything in this section is therefore an abbreviation for the scalar
+language described above; no vector ever reaches an SMT solver or a
+computer algebra system as a vector.
+
+A *vector type* is a type followed by its length in brackets.
+The length must be a positive numeral.
+\\[
+\vectyp ::= \typ\ \pmb{[}\ \mN\ \pmb{]}
+\\]
+The element type is an ordinary type, so its width is unrestricted:
+\\(\uint{64}[4]\\) (four unsigned 64-bit elements, for instance a 256-bit
+AVX2 register viewed as four 64-bit lanes), \\(\sint{16}[16]\\), and
+\\(\uint{128}[2]\\) are all vector types.
+
+Vector variables are distinguished from scalar variables lexically:
+the name of a vector variable always starts with \\(\pcnt\\) and the name
+of a scalar variable never does.
+Like a scalar variable, a vector variable may be given its type
+explicitly in either order.
+\\[
+  \begin{array}{rcl}
+    \vecvar & ::= & \pcnt \id \\\\
+    \tvecvar & ::= & \vecvar @ \vectyp \mid \vectyp\ \vecvar
+  \end{array}
+\\]
+The \\(i\\)-th element of a vector \\(v\\) is written \\(v \pmb{[} i \pmb{]}\\),
+with \\(i\\) counted from \\(0\\).
+An element is an ordinary scalar atom and may be used wherever a
+scalar atom, an algebraic expression, or a range expression is
+expected.
+
+A *vector atom* denotes a sequence of scalar atoms of a common type.
+\\[
+  \begin{array}{rcl}
+    \vecatom & ::= & \vecvar \mid \tvecvar \\\\
+             & \mid & \pmb{[}\ \atom_{\pmb,}^+\ \pmb{]} \\\\
+             & \mid & \const @ \vectyp \\\\
+             & \mid & \vecatom\ \pmb{[}\ \sel_{\pmb,}^+\ \pmb{]} \\\\
+             & \mid & \vecatom\ \pmb\catop\ \vecatom \\\\
+             & \mid & \vecatom\ \pmb\catop\ \const \\\\
+             & \mid & \pmb(\ \vecatom\ \pmb)
+  \end{array}
+\\]
+A *vector literal* \\([a_1, \ldots, a_n]\\) builds a vector out of scalar
+atoms; all of \\(a_1, \ldots, a_n\\) must have the same type.
+A *constant vector* \\(c @ t[n]\\) *splits* the constant \\(c\\) into \\(n\\)
+elements of type \\(t\\), least significant element first; it does not
+replicate \\(c\\).
+\\(v_1\ \catop\ v_2\\) concatenates two vectors, the elements of \\(v_1\\)
+coming first; both must have the same element type.
+\\(v\ \catop\ c\\) duplicates \\(v\\) \\(c\\) times.
+Only a vector variable and a vector literal may be assigned to.
+A selection, a concatenation, a duplication, and a constant vector are
+read-only and are rejected as destinations.
+
+A *selection* picks elements out of a vector, either by listing
+indices or by slicing.
+\\[
+  \begin{array}{rcl}
+    \sel & ::= & \const\ \pmb{:}\ \const \mid \const\ \pmb{:} \mid
+                 \pmb{:}\ \const \\\\
+         & \mid & \const\ \pmb{:}\ \const\ \pmb{:}\ \const \mid
+                  \const\ \pmb{:}\ \pmb{:}\ \const \mid
+                  \pmb{:}\ \const\ \pmb{:}\ \const
+  \end{array}
+\\]
+A slice \\(i \pmb: j \pmb: k\\) selects the elements at indices \\(i\\),
+\\(i + k\\), \\(i + 2k\\), \\(\ldots\\) up to but excluding \\(j\\).
+An omitted \\(i\\) defaults to \\(0\\), an omitted \\(j\\) defaults to the length
+of the vector, and an omitted \\(k\\) defaults to \\(1\\).
+A step of \\(0\\) is an error, and a slice whose step runs away from its
+bound is empty.
+A negative index \\(i\\) denotes the index \\(\mathit{len} + i + 1\\), so
+\\(v[0\pmb{:}\text{-}1]\\) is the whole of \\(v\\).
+Instead of slices, a selection may be a list of at least two indices,
+as in \\(v[3, 2, 1, 0]\\), which is how shuffles are expressed.
+A single index in brackets is an element rather than a selection:
+\\(v[0]\\) is a scalar atom, and the one-element vector containing it must
+be written as a slice such as \\(v[0\pmb{:}1]\\).
+
+An instruction is a vector instruction whenever its destination is a
+vector.
+The following instructions have vector forms: \\(\imov\\), \\(\icmov\\),
+\\(\iadd\\), \\(\iadds\\), \\(\isub\\), \\(\isubc\\), \\(\isubb\\), \\(\imul\\), \\(\imull\\),
+\\(\imulj\\), \\(\isplit\\), \\(\ispl\\), \\(\ishl\\), \\(\ishls\\), \\(\ishr\\), \\(\ishrs\\),
+\\(\isar\\), \\(\isars\\), \\(\irol\\), \\(\iror\\), \\(\iset\\), \\(\iclear\\), \\(\inondet\\),
+\\(\iseteq\\), \\(\isetne\\), \\(\iand\\), \\(\ior\\), \\(\ixor\\), \\(\inot\\), \\(\ijoin\\),
+\\(\icast\\), \\(\ivpc\\), together with the unsigned and signed versions of
+those that have them.
+The instructions that thread a carry or borrow through their operands,
+namely \\(\iadc\\), \\(\iadcs\\), \\(\isbc\\), \\(\isbcs\\), \\(\isbb\\), \\(\isbbs\\),
+\\(\icshl\\), \\(\icshr\\), and \\(\icshrs\\), have no vector form.
+The two source vectors of a binary vector instruction must have the
+same length and the same element type, and the destination must have
+the same length as the sources.
+
+Two instructions exist only in vector form.
+\\(\ibroadcast\ v\ n\ a\\) assigns \\(v\\) by \\(n\\) copies of the vector atom
+\\(a\\), so the result has \\(n\\) times as many elements as \\(a\\).
+\\(\iextract\ v\ [n_1, \ldots, n_k]\ a_1\ \cdots\ a_k\\) assigns \\(v\\) by the
+\\(n_i\\)-th element of \\(a_i\\) for each \\(i\\); the sources must all have the
+same element type, and there must be as many indices as sources.
+\\[
+  \begin{array}{rcl}
+    \vecinstr & ::= & \pmb\ibroadcast\ \veclval\ \const\ \vecatom \\\\
+              & \mid & \pmb\iextract\ \veclval\ \pmb{[}\ \mN_{\pmb,}^+
+                       \ \pmb{]}\ \vecatom^+
+  \end{array}
+\\]
+
+For example, the following program loads four 64-bit words into a
+vector, builds a second vector holding four copies of a shift amount,
+shifts the first vector element-wise, and finally assembles a third
+vector from the low half of one and the high half of the other.
+
+```
+mov %v@uint64[4] [x0, x1, x2, x3];
+broadcast %s@uint64[4] 4 [24@uint64];
+shl %w %v %s;
+mov %u@uint64[4] (%v[0, 1] ++ %w[2, 3]);
+```
+
+Vectors may also appear in predicates.
+An equality or a comparison between two vectors holds element-wise, in
+both the algebraic and the range parts, and the modular suffixes of an
+equality accept vectors as their moduli.
+In a range expression, \\(\ijoin\ v\\) concatenates all elements of \\(v\\),
+from low to high, into a single bit-vector, and \\(\mathit{concat}\\)
+concatenates two vectors element-wise.
+In a list of algebraic expressions, \\(\mulop v\\) splices the elements of
+\\(v\\) into the list, so a limb expression over a whole vector may be
+written as \\(\ilimbs\ 64\ [\mulop v]\\).
+Ghost variables and the formal parameters of a procedure may be
+vectors, declared with a vector type in the same way as vector
+variables elsewhere.
 
 Sometimes a predicate has to be proved with facts that have been cut off.
 \\(\cryptoline\\) offers the specification of hints required to prove a predicate.
