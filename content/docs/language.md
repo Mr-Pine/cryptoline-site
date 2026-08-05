@@ -14,21 +14,21 @@ weight: 2
 
 ## Introduction
 
-$\cryptoline$ is a tool and a language for the verification of low-level
+\\(\cryptoline\\) is a tool and a language for the verification of low-level
 implementations of mathematical constructs.
-In $\cryptoline$, users can specify two kinds of properties,
+In \\(\cryptoline\\), users can specify two kinds of properties,
 namely algebraic properties and range properties.
 Algebraic properties involve equalities and modular equalities in the
 integer domain while range properties involve bit-accurate variable
 ranges.
-$\cryptoline$ verifies algebraic properties and range properties
+\\(\cryptoline\\) verifies algebraic properties and range properties
 separately.
 Verification of algebraic properties is reduced to ideal membership
 queries which are solved by external computer algebra systems.
 Verification of range properties is reduced to Satisfiability Modulo
 Theories (SMT) queries which are solved by external SMT solvers.
 
-## $\cryptoline$ Language
+## \\(\cryptoline\\) Language
 
 An *identifier* is a regular string started by a letter or an
 underscore, followed by letters, digits, or underscores.
@@ -36,12 +36,12 @@ underscore, followed by letters, digits, or underscores.
 \id ::= (\letter \mid \underscore) [ \letter \mid \digit \mid \underscore ]
 \\]
 
-All constants and variables in $\cryptoline$ are typed.
-Let $w$ be a positive integer.
-$\uint w$ and $\sint w$ in $\cryptoline$ denote the types of bit-vectors
-with width $w$ in the unsigned and two's complement signed
+All constants and variables in \\(\cryptoline\\) are typed.
+Let \\(w\\) be a positive integer.
+\\(\uint w\\) and \\(\sint w\\) in \\(\cryptoline\\) denote the types of bit-vectors
+with width \\(w\\) in the unsigned and two's complement signed
 representations respectively.
-The type $\uint 1$ is also written as $\bit$.
+The type \\(\uint 1\\) is also written as \\(\bit\\).
 \\[
   \begin{array}{rcl}
     \typ & ::= & \uint 1 \mid \sint 2 \mid \uint 2 \mid \sint 3 \mid
@@ -71,8 +71,8 @@ number, a named constant, or arithmetic expressions over constants.
   \end{array}
 \\]
 
-The value of a named integer $c$ is read by $\\$c$.
-$\cryptoline$ supports the following arithmetic operators over
+The value of a named integer \\(c\\) is read by \\(\\$c\\).
+\\(\cryptoline\\) supports the following arithmetic operators over
 constants: unary minus (-), addition (+), subtraction (-),
 multiplication (*), and exponent (**).
 A *typed constant* is a constant with its type explicitly
@@ -81,7 +81,7 @@ specified.
 A *variable* is an identity.
 A *typed variable* is a variable with its type explicitly
 specified.
-An $\lval$ is either a variable or a typed variable.
+An \\(\lval\\) is either a variable or a typed variable.
 
 \\[
   \begin{array}{rcl}
@@ -91,18 +91,18 @@ An $\lval$ is either a variable or a typed variable.
   \end{array}
 \\]
 
-The notation $t_{\circ}^*$ and $t_{\circ}^+$ respectlvey represents a
-possibly empty and a non-empty sequence of $\circ$-separated $t$.
+The notation \\(t_{\circ}^*\\) and \\(t_{\circ}^+\\) respectlvey represents a
+possibly empty and a non-empty sequence of \\(\circ\\)-separated \\(t\\).
 
 An *atom* is either a typed constant, a variable, or a typed
 variable.
 It is not necessary to specify the variable type explicitly in
-an atom because $\cryptoline$ can infer the type automatically.
+an atom because \\(\cryptoline\\) can infer the type automatically.
 \\[
 \atom ::= \tconst \mid \var \mid \tvar
 \\]
 
-An *algebraic expression* is evaluated over $\mZ$.
+An *algebraic expression* is evaluated over \\(\mZ\\).
 \\[
 \begin{array}{rclcl}
 \eexp &  ::= & \simpleconst %\\\\
@@ -116,17 +116,17 @@ An *algebraic expression* is evaluated over $\mZ$.
       & \mid & \pmb{(}\ \eexp\ \pmb{)}
 \end{array}
 \\]
-$\ilimbs\ n\ [e_1, \ldots, e_m ]$ represents $e_1 + e_2 2^n + e_3
-2^{2n} + \cdots + e_m 2^{(m-1)n}$.
+\\(\ilimbs\ n\ [e_1, \ldots, e_m ]\\) represents \\(e_1 + e_2 2^n + e_3
+2^{2n} + \cdots + e_m 2^{(m-1)n}\\).
 A *range expression* is evaluated over bit vectors.
-$\iconst\ w\ n$ is a bit-vector of width $w$ and value $n$.
-$\negop$ ($\ineg$) is logical negation.
-$\notop$ ($\inot$), $\andop$ ($\iand$), $\orop$ ($\ior$), $\xorop$ ($\ixor$) are respectively bit-wise
+\\(\iconst\ w\ n\\) is a bit-vector of width \\(w\\) and value \\(n\\).
+\\(\negop\\) (\\(\ineg\\)) is logical negation.
+\\(\notop\\) (\\(\inot\\)), \\(\andop\\) (\\(\iand\\)), \\(\orop\\) (\\(\ior\\)), \\(\xorop\\) (\\(\ixor\\)) are respectively bit-wise
 negation, bit-wise AND, bit-wise OR, and bit-wise XOR.
-$\iumod$ is unsigned remainder.
-$\isrem$ is 2's complement signed remainder (sign follows dividend).
-$\ismod$ is 2's complement signed remainder (sign follows divisor).
-$\iuext$ and $\isext$ are respectively unsigned and signed extension
+\\(\iumod\\) is unsigned remainder.
+\\(\isrem\\) is 2's complement signed remainder (sign follows dividend).
+\\(\ismod\\) is 2's complement signed remainder (sign follows divisor).
+\\(\iuext\\) and \\(\isext\\) are respectively unsigned and signed extension
 operations.
 
 \\[
@@ -164,15 +164,15 @@ A *predicate* is represented by an algebraic predicate and a range predicate.
 \end{array}
 \\]
 An *algebraic predicate* is evaluated over the integer domain.
-$e_1 = e_2$ ($\ieq\ e_1\ e_2$) is an equality over algebraic
+\\(e_1 = e_2\\) (\\(\ieq\ e_1\ e_2\\)) is an equality over algebraic
 expressions.
-$e_1 = e_2\ (\imod\ [m_1, \ldots, m_n])$ ($\ieqmod\ e_1\ e_2$ $[m_1,
-\ldots, m_n]$) is a modular equality.
-$p_1\ \landop\ p_2$ ($\iand\ p_1\ p_2$) is a logical conjunction of
-$p_1$ and $p_2$.
-The conjunction of a sequence of algebraic predicates $e_1, \ldots,
-e_n$ is written as $\landop\ [e_1, \ldots, e_n]$ ($\iand\ [e_1, \ldots,
-e_n]$).
+\\(e_1 = e_2\ (\imod\ [m_1, \ldots, m_n])\\) (\\(\ieqmod\ e_1\ e_2\\) \\([m_1,
+\ldots, m_n]\\)) is a modular equality.
+\\(p_1\ \landop\ p_2\\) (\\(\iand\ p_1\ p_2\\)) is a logical conjunction of
+\\(p_1\\) and \\(p_2\\).
+The conjunction of a sequence of algebraic predicates \\(e_1, \ldots,
+e_n\\) is written as \\(\landop\ [e_1, \ldots, e_n]\\) (\\(\iand\ [e_1, \ldots,
+e_n]\\)).
 \\[
 \begin{array}{rclcl}
   \epred &  ::= & \pmb(\ \epred\ \pmb)
@@ -188,13 +188,13 @@ e_n]$).
 \end{array}
 \\]
 A *range predicate* specifies the ranges of variables.
-$\cryptoline$ offers comparisons such as equality ($\eqop$), modular
-equalities ($\iequmod$, $\ieqsmod$, $\ieqsrem$), unsigned less than
-($\ultop$), unsigned less than or equal to ($\uleop$), unsigned
-greater than ($\ugtop$), unsigned greater than or equal to ($\ugeop$),
-signed less than ($\sltop$), signed less than or equal to ($\sleop$),
-signed greater than ($\sgtop$), and signed greater than or equal to
-($\sgeop$).
+\\(\cryptoline\\) offers comparisons such as equality (\\(\eqop\\)), modular
+equalities (\\(\iequmod\\), \\(\ieqsmod\\), \\(\ieqsrem\\)), unsigned less than
+(\\(\ultop\\)), unsigned less than or equal to (\\(\uleop\\)), unsigned
+greater than (\\(\ugtop\\)), unsigned greater than or equal to (\\(\ugeop\\)),
+signed less than (\\(\sltop\\)), signed less than or equal to (\\(\sleop\\)),
+signed greater than (\\(\sgtop\\)), and signed greater than or equal to
+(\\(\sgeop\\)).
 \\[
 \begin{array}{rclcl}
   \rpred &  ::= & \pmb{(}\ \rpred\ \pmb{)}
@@ -236,82 +236,82 @@ signed greater than ($\sgtop$), and signed greater than or equal to
 \end{array}
 \\]
 
-There are numerous *instructions* supported by $\cryptoline$.
-$\imov\ x\ a$ assigns destination variable $x$ by the value of the
-source atom $a$.
-$\icmov\ x\ c\ a_1\ a_2$ assigns destination variable $x$ by the value of the
-source atom $a_1$ if the condition bit $c$ is $1$, and otherwise by
-the value of the source atom $a_2$.
-$\iadd\ x\ a_1\ a_2$ assigns $x$ by the addition of the source atoms
-$a_1$ and $a_2$.
-Note that $\iadd$ may overflow.
-$\iadds\ c\ x\ a_1\ a_2$ assigns $x$ by the addition of the source atoms
-$a_1$ and $a_2$ with carry bit $c$ set.
-$\iadc\ x\ a_1\ a_2\ y$ assigns $x$ by the addition of the carry bit $y$
-and the source atoms $a_1$ and $a_2$.
-$\iadcs$ is the same as $\iadc$ except the carry bit is set.
-There are also instructions $\isub$ for subtraction; $\isubc$, $\isbc$
-and $\isbcs$ for subtraction with carry; $\isubb$, $\isbb$, and
-$\isbbs$ for subtraction with borrow.
-$\imul$ and $\imuls$ are half multiplication operations.
-The differenace is that $\imuls$ sets the carry bit if the
+There are numerous *instructions* supported by \\(\cryptoline\\).
+\\(\imov\ x\ a\\) assigns destination variable \\(x\\) by the value of the
+source atom \\(a\\).
+\\(\icmov\ x\ c\ a_1\ a_2\\) assigns destination variable \\(x\\) by the value of the
+source atom \\(a_1\\) if the condition bit \\(c\\) is \\(1\\), and otherwise by
+the value of the source atom \\(a_2\\).
+\\(\iadd\ x\ a_1\ a_2\\) assigns \\(x\\) by the addition of the source atoms
+\\(a_1\\) and \\(a_2\\).
+Note that \\(\iadd\\) may overflow.
+\\(\iadds\ c\ x\ a_1\ a_2\\) assigns \\(x\\) by the addition of the source atoms
+\\(a_1\\) and \\(a_2\\) with carry bit \\(c\\) set.
+\\(\iadc\ x\ a_1\ a_2\ y\\) assigns \\(x\\) by the addition of the carry bit \\(y\\)
+and the source atoms \\(a_1\\) and \\(a_2\\).
+\\(\iadcs\\) is the same as \\(\iadc\\) except the carry bit is set.
+There are also instructions \\(\isub\\) for subtraction; \\(\isubc\\), \\(\isbc\\)
+and \\(\isbcs\\) for subtraction with carry; \\(\isubb\\), \\(\isbb\\), and
+\\(\isbbs\\) for subtraction with borrow.
+\\(\imul\\) and \\(\imuls\\) are half multiplication operations.
+The differenace is that \\(\imuls\\) sets the carry bit if the
 multiplication under- or over-flow.
-$\imull$ is full multiplication with results split into high part and
+\\(\imull\\) is full multiplication with results split into high part and
 low part.
-$\imulj$ is also full multiplication without splitting the results.
-$\inondet$ assigns a variable by a nondeterministic value.
-$\iset\ x$ assigns the bit variable $x$ by $1$ while $\iclear\ x$
-assigns the bit variable $x$ by $0$.
-$\ishl x a n$ shifts the source atom $a$ left by $n$ and stores the
-results in $x$.
-$\ishls o x a n$ is the same as $\ishls x a n$ except that the bits
-shifted out are stored in $o$.
-$\ishr x a n$ shifts the source atom $a$ right logically by $n$ and
-stores the results in $x$.
-$\ishrs x o a n$ is the same as $\ishr x a n$ except that the bits
-shifted out are stored in $o$.
-$\isar$ and $\isars$ are the same as $\ishr$ and $\ishrs$ respectively
+\\(\imulj\\) is also full multiplication without splitting the results.
+\\(\inondet\\) assigns a variable by a nondeterministic value.
+\\(\iset\ x\\) assigns the bit variable \\(x\\) by \\(1\\) while \\(\iclear\ x\\)
+assigns the bit variable \\(x\\) by \\(0\\).
+\\(\ishl x a n\\) shifts the source atom \\(a\\) left by \\(n\\) and stores the
+results in \\(x\\).
+\\(\ishls o x a n\\) is the same as \\(\ishls x a n\\) except that the bits
+shifted out are stored in \\(o\\).
+\\(\ishr x a n\\) shifts the source atom \\(a\\) right logically by \\(n\\) and
+stores the results in \\(x\\).
+\\(\ishrs x o a n\\) is the same as \\(\ishr x a n\\) except that the bits
+shifted out are stored in \\(o\\).
+\\(\isar\\) and \\(\isars\\) are the same as \\(\ishr\\) and \\(\ishrs\\) respectively
 except that the right shift is arithmetic.
-$\icshl x_h x_l a_1 a_2 n$ concatenates the source atoms $a_1$ (high
-bits) and $a_2$ (low bits), shifts the concatenation left by $n$,
-stores the high bits of the shifted concatenation in $x_h$, and stores
-the low bits shifted right by $n$ in $x_l$.
-$\icshr x_h x_l a_1 a_2 n$ concatenates the source atoms $a_1$ (high
-bits) and $a_2$ (low bits), shifts the concatenation right logically
-by $n$, stores the high bits of the shifted concatenation in $x_h$,
-and stores the low bits in $x_l$.
-$\icshr x_h x_l o a_1 a_2 n$ is the same as $\icshr x_h x_l a_1 a_2 n$
-except that the bits shifted out are stored in $o$.
-$\ispl x_h x_l a n$ splits the source atom $a$ at position $n$, stores
-the high bits in $x_h$, and stores the low bits in $x_l$.
-$\isplit$ is the same as $\ispl$ except that the high bits and the low
-bits are extended to the size of $a$.
+\\(\icshl x_h x_l a_1 a_2 n\\) concatenates the source atoms \\(a_1\\) (high
+bits) and \\(a_2\\) (low bits), shifts the concatenation left by \\(n\\),
+stores the high bits of the shifted concatenation in \\(x_h\\), and stores
+the low bits shifted right by \\(n\\) in \\(x_l\\).
+\\(\icshr x_h x_l a_1 a_2 n\\) concatenates the source atoms \\(a_1\\) (high
+bits) and \\(a_2\\) (low bits), shifts the concatenation right logically
+by \\(n\\), stores the high bits of the shifted concatenation in \\(x_h\\),
+and stores the low bits in \\(x_l\\).
+\\(\icshr x_h x_l o a_1 a_2 n\\) is the same as \\(\icshr x_h x_l a_1 a_2 n\\)
+except that the bits shifted out are stored in \\(o\\).
+\\(\ispl x_h x_l a n\\) splits the source atom \\(a\\) at position \\(n\\), stores
+the high bits in \\(x_h\\), and stores the low bits in \\(x_l\\).
+\\(\isplit\\) is the same as \\(\ispl\\) except that the high bits and the low
+bits are extended to the size of \\(a\\).
 While the low bits are always zero extended, the high bits are sign
-extended if $a$ is signed and otherwise zero extended.
-$\ijoin x a_1 a_2$ assigns $x$ by the concatenation of the source
-atoms $a_1$ (high bits) and $a_2$ (low bits).
-$\iand$, $\ior$, $\inot$, and $\ixor$ are bit-wise operations.
-$\icast t x a$ assigns $x$ by the source atom $a$ casted to the type
-$t$.
-$\ivpc t x a$ is the same as $\icast t x a$ except that the integer
-interpretation of $x$ must be the same as the integer interpretation
-of $a$.
-$\iassert$ tells $\cryptoline$ to verify the specified predicate.
-$\iassume$ tells $\cryptoline$ to assume the specified predicate.
-$\icut\ e\ \band\ r$ is an alias of one $\iecut\ e$ followed by a
-$\ircut\ r$.
-For $\iecut$, $\cryptoline$ verifies the specified algebraic predicate
+extended if \\(a\\) is signed and otherwise zero extended.
+\\(\ijoin x a_1 a_2\\) assigns \\(x\\) by the concatenation of the source
+atoms \\(a_1\\) (high bits) and \\(a_2\\) (low bits).
+\\(\iand\\), \\(\ior\\), \\(\inot\\), and \\(\ixor\\) are bit-wise operations.
+\\(\icast t x a\\) assigns \\(x\\) by the source atom \\(a\\) casted to the type
+\\(t\\).
+\\(\ivpc t x a\\) is the same as \\(\icast t x a\\) except that the integer
+interpretation of \\(x\\) must be the same as the integer interpretation
+of \\(a\\).
+\\(\iassert\\) tells \\(\cryptoline\\) to verify the specified predicate.
+\\(\iassume\\) tells \\(\cryptoline\\) to assume the specified predicate.
+\\(\icut\ e\ \band\ r\\) is an alias of one \\(\iecut\ e\\) followed by a
+\\(\ircut\ r\\).
+For \\(\iecut\\), \\(\cryptoline\\) verifies the specified algebraic predicate
 and starts afresh with the predicate assumed when verifying algebraic
 properties.
-Similarly for $\ircut$, $\cryptoline$ verifies the specified range
+Similarly for \\(\ircut\\), \\(\cryptoline\\) verifies the specified range
 predicate and starts afresh with the predicate assumed when verifying
 range properties.
-$\ighost$ can introduce logical variables that must only be used in
-specifications such as $\iassert$, $\iassume$, $\icut$, $\iecut$,
-$\ircut$, and postconditions.
-The predicate in a $\ighost$ instruction is always assumed.
-$\icall\ p\ (a_1, a_2, \ldots, a_n)$ executes a defined procedure $p$
-with arguments $a_1, a_2, \ldots, a_n$.
+\\(\ighost\\) can introduce logical variables that must only be used in
+specifications such as \\(\iassert\\), \\(\iassume\\), \\(\icut\\), \\(\iecut\\),
+\\(\ircut\\), and postconditions.
+The predicate in a \\(\ighost\\) instruction is always assumed.
+\\(\icall\ p\ (a_1, a_2, \ldots, a_n)\\) executes a defined procedure \\(p\\)
+with arguments \\(a_1, a_2, \ldots, a_n\\).
 
 \\[
 \begin{array}{rclcl}
@@ -364,15 +364,15 @@ with arguments $a_1, a_2, \ldots, a_n$.
 \end{array}
 \\]
 
-Instructions $\iadd$, $\iadds$, $\iadc$, $\iadcs$, $\isub$, $\isubc$,
-$\isubb$, $\isbc$, $\isbcs$, $\isbb$, $\isbbs$, $\imul$, $\imuls$,
-$\imull$, $\imulj$, $\isplit$, and $\ispl$ also have specific unsigned
+Instructions \\(\iadd\\), \\(\iadds\\), \\(\iadc\\), \\(\iadcs\\), \\(\isub\\), \\(\isubc\\),
+\\(\isubb\\), \\(\isbc\\), \\(\isbcs\\), \\(\isbb\\), \\(\isbbs\\), \\(\imul\\), \\(\imuls\\),
+\\(\imull\\), \\(\imulj\\), \\(\isplit\\), and \\(\ispl\\) also have specific unsigned
 and signed versions with prefix "u" or "s".
-For example, $\iuadd$ and $\isadd$ are respectively unsigned and
-signed versions of $\iadd$.
+For example, \\(\iuadd\\) and \\(\isadd\\) are respectively unsigned and
+signed versions of \\(\iadd\\).
 
 Sometimes a predicate has to be proved with facts that have been cut off.
-$\cryptoline$ offers the specification of hints required to prove a predicate.
+\\(\cryptoline\\) offers the specification of hints required to prove a predicate.
 
 \\[
 \begin{array}{rclcl}
@@ -403,11 +403,11 @@ $\cryptoline$ offers the specification of hints required to prove a predicate.
 \end{array}
 \\]
 
-Note that the indices of $\iecut$ and $\ircut$ are numbered separately
+Note that the indices of \\(\iecut\\) and \\(\ircut\\) are numbered separately
 (starting from 0).
-When verifying algebraic properties, $\ircut$ instructions are
+When verifying algebraic properties, \\(\ircut\\) instructions are
 ignored.
-When verifying range properties, $\iecut$ instructions are
+When verifying range properties, \\(\iecut\\) instructions are
 ignored.
 For example, consider the following program.
 
@@ -420,10 +420,10 @@ add z x y;
 rcut z = 18@16;
 ```
 
-If we want to prove $e\ \provewith\ [\cuts [1]]\ \band\ r\ \provewith
-[\cuts [1]]$, then $y = 3$ will be assumed when proving the algebraic
-property $e$ while $z = 18@16$ will be assumed when proving the range
-property $r$.
+If we want to prove \\(e\ \provewith\ [\cuts [1]]\ \band\ r\ \provewith
+[\cuts [1]]\\), then \\(y = 3\\) will be assumed when proving the algebraic
+property \\(e\\) while \\(z = 18@16\\) will be assumed when proving the range
+property \\(r\\).
 
 A *procedure* is a parameterized program together with its
 specification (precondition and postcondition).

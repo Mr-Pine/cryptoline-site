@@ -34,8 +34,9 @@ Put the following at the top of the document to enable Katex:
 {{< cl_macro >}}
 ```
 
-Use `$math_inline$` and `$$math_block$$` as usual. Alternatively,
-use `\\(math_inline\\)` and `\\[math_block\\]`.
+Use `\\(math_inline\\)` and `$$math_block$$` or `\\[math_block\\]`.
+The theme does not treat a single `$` as a math delimiter, since that
+would swallow every dollar sign in the prose.
 
 See [Supported Functions](https://katex.org/docs/supported.html).
 
