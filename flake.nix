@@ -1,11 +1,8 @@
 {
   description = "CryptoLine documentation site (Hugo)";
 
-  # Pinned to a release whose Hugo is close to the 0.108.0 used by the Pages
-  # workflow in .github/workflows/hugo.yml. The hugo-book theme still calls
-  # `resources.ToCSS`, which current Hugo has removed, so do not bump this
-  # without updating the theme submodule too.
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+  # The hugo-book theme needs Hugo 0.158 or newer.
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }:
     let
