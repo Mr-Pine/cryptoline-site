@@ -369,7 +369,9 @@ with arguments \\(a_1, a_2, \ldots, a_n\\).
          & \mid & \pmb\ircut\ \rpredclause
          & \mid & \pmb\ighost\ \tvar_{\pmb,}^+\ \pmb{:}\ \pred \\\\
          & \mid & \pmb\icall\ \id\ \pmb{(}\ \atom_{\pmb,}^* \pmb{)}
-  & \mid & \pmb\inop
+  & \mid & \pmb\inop \\\\
+         & \mid & \caseinstr \\\\
+         & \mid & \repeatinstr
 \end{array}
 \\]
 
@@ -537,6 +539,133 @@ written as \\(\ilimbs\ 64\ [\mulop v]\\).
 Ghost variables and the formal parameters of a procedure may be
 vectors, declared with a vector type in the same way as vector
 variables elsewhere.
+
+### Case statements
+
+Several instructions require a constant where a program may have a
+variable.
+The position of a \\(\isplit\\), the number of shifts accepted by the
+algebraic abstraction of a \\(\ishl\\), and the index of a vector element
+are all constants, which leaves machine instructions that take those
+from a register, such as the AVX2 \\(\mathit{vpsllvq}\\) and the AVX-512
+form of \\(\mathit{vpermq}\\), with nothing to translate to.
+
+A *case statement* closes that gap by enumeration.
+\\[
+\caseinstr ::= \pmb\icase\ \id\ \pmb\eqop\ \atom\ \pmb{[}\
+               \const_{\pmb,}^+\ \pmb{]}\ \pmb\{\ \instr_{\pmb;}^+\ \pmb\}
+\\]
+\\(\pmb\icase\ n \pmb\eqop a\ \pmb[k_1, \ldots, k_m\pmb]\ \pmb\{\ P\
+\pmb\}\\) runs the body \\(P\\) once for each \\(k_i\\), with the name \\(n\\)
+bound to \\(k_i\\) as a named integer, and keeps the run whose \\(k_i\\) is
+the value the atom \\(a\\) actually has.
+Like a vector, a case statement is an abbreviation: it expands into
+\\(\iseteq\\) instructions that compare \\(a\\) against each \\(k_i\\), one copy
+of the body per value, and a chain of \\(\icmov\\) that merges those copies
+by selecting the one that matched.
+Every variable the body assigns is an output of the statement and is
+merged; a body that reads a variable it also assigns sees the value that
+variable had before the statement.
+Nothing new reaches an SMT solver or a computer algebra system.
+
+A value may be written as a range, so \\(\pmb[0 \pmb{..} 3\pmb]\\) is
+\\(\pmb[0, 1, 2, 3\pmb]\\), and the values must be distinct.
+The body refers to the bound value as \\(\pmb\$ n\\), the same way it would
+refer to any named integer, which is what lets it stand where an
+instruction demands a constant.
+A \\(\icut\\) may not appear in the body, since a cut would divide the
+proof across the merge.
+
+The statement asserts that \\(a\\) is one of \\(k_1, \ldots, k_m\\).
+That assertion is what makes the enumeration faithful rather than a
+guess: a program that can reach the statement with any other value fails
+to verify, and the fix is to widen the list.
+Together with the assertion the statement records, for the algebraic
+abstraction, that exactly one \\(k_i\\) was selected and which value of
+\\(a\\) that corresponds to.
+Without those two facts the polynomial abstraction of \\(\iseteq\\) leaves
+\\(a\\) unrelated to the merged result, and no algebraic property proved
+from a case statement would go through.
+
+An *else branch* covers the values the list leaves out.
+\\[
+\pmb\icase\ \id\ \pmb\eqop\ \atom\ \pmb{[}\ \const_{\pmb,}^+\ \pmb{]}\
+  \pmb\{\ \instr_{\pmb;}^+\ \pmb\}\ \pmb\ielse\ \pmb\{\ \instr_{\pmb;}^+\ \pmb\}
+\\]
+It runs when no listed value matched, and it is what the merge falls
+through with, so the statement becomes total and asserts nothing about
+\\(a\\).
+What it records for the algebraic abstraction weakens to match: at most
+one \\(k_i\\) was selected, and \\(a\\) is that value if one was.
+The algebra cannot tell which branch ran, because whether \\(a\\) fell in
+the list is a range property, so an algebraic proof that needs to know
+should use the plain form and let the assertion establish the range.
+Only what every branch assigns, the else branch included, is an output;
+a variable one branch leaves alone keeps what it held before.
+
+For example, the following shifts a 64-bit word left by a variable
+number of bits, discarding the bits shifted out as the hardware does.
+The count \\(0\\) is covered like any other: shifting by it leaves the
+word alone, and the split it pairs with takes the whole word into its
+low half.
+The else branch covers a count of \\(64\\) or more, which the hardware
+turns into zero, so nothing constrains the counts the program may use.
+
+```
+case n = x [0 .. 63] {
+  split dc, l, a, (64 - $n);
+  shl d, l, $n@uint64
+} else {
+  mov d, 0@uint64
+};
+```
+
+### Repeating over lanes
+
+A *repeat statement* runs its body once per value, in order.
+\\[
+\repeatinstr ::= \pmb\irepeat\ \id\ \pmb\eqop\ \pmb{[}\ \const_{\pmb,}^+\
+                 \pmb{]}\ \pmb\{\ \instr_{\pmb;}^+\ \pmb\}
+\\]
+It takes the same value lists and the same \\(\pmb\$ n\\) as a case, but
+the values are not something the program chooses between, so the copies
+are ordinary straight-line code: nothing is merged, and a later copy
+sees what an earlier one assigned.
+
+A lane of a vector may be assigned, written \\(v\pmb{[}\const\pmb{]}\\)
+in the destination of a \\(\imov\\), which is what makes a repeat useful
+for per-lane work.
+A comma separates that destination from the source, since a bracket
+after a vector name would otherwise begin a vector literal.
+Instruction arguments may be separated by commas generally.
+
+```
+mov %dst@uint64[4] %src;
+repeat i = [0 .. 3] {
+  case n = %cnt[$i] [0 .. 63] {
+    split dc, l, %src[$i], (64 - $n);
+    shl s, l, $n@uint64;
+    mov %dst[$i], s
+  } else {
+    mov %dst[$i], 0@uint64
+  }
+};
+```
+
+The destination is given a vector type by an ordinary assignment before
+its lanes are written, since assigning one lane cannot say how many
+lanes the vector has.
+
+Selecting a vector element by a variable index is the same shape, with
+the index in the brackets of an element atom rather than in the position
+of a split.
+
+```
+and idx@uint64 ctrl 3@uint64;
+case n = idx [0 .. 3] {
+  mov d %v[$n]
+};
+```
 
 Sometimes a predicate has to be proved with facts that have been cut off.
 \\(\cryptoline\\) offers the specification of hints required to prove a predicate.

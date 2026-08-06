@@ -251,3 +251,48 @@ The predicate `P && Q` in a `ghost` instruction is always assumed.
 ### call
 `call p (a1, a2, ..., an)` executes a defined procedure `p`
 with arguments `a1, a2, ..., an`.
+
+
+### case
+`case n = a [k1, ..., km] { body }` runs `body` once for every listed
+value of the atom `a`, with `n` bound to that value as a constant, and
+keeps the run that matches the value `a` actually has.
+
+Ranges abbreviate a run of values, so `[0 .. 3]` is `[0, 1, 2, 3]` and
+`[1, 3, 10 .. 12]` is `[1, 3, 10, 11, 12]`. The values must be distinct.
+The body refers to the bound value as `$n`, like any other named
+constant, which makes it usable wherever an instruction requires a
+constant rather than an atom, such as the position of a `split` or the
+index of a vector element.
+
+Without an `else`, a `case` asserts that `a` is one of the listed
+values, and verification fails if `a` can be anything else.
+
+`case n = a [k1, ..., km] { body } else { other }` runs `other` when `a`
+is none of the listed values, and asserts nothing about `a`. The two
+forms differ in what an algebraic proof can conclude: without an `else`
+one of the listed values was taken, so `a` is known to be that value,
+whereas with one the algebra cannot tell which branch ran, because
+whether the subject fell in the list is a range property. Use the plain
+form when the list really does cover every reachable value.
+
+Only what every branch assigns, the `else` branch included, is an output
+of the statement. A variable one branch leaves alone keeps whatever it
+held before.
+
+
+### repeat
+`repeat n = [k1, ..., km] { body }` runs `body` once for each listed
+value, in order, with `n` bound to that value as a constant.
+
+Unlike a `case`, the values are not something the program chooses
+between, so the copies are ordinary straight-line code: nothing is
+merged afterwards, and a later copy sees what an earlier one assigned.
+It takes the same value lists and the same `$n` as a `case`, and is
+meant for repeating an operation across the lanes of a vector.
+
+```
+repeat i = [0 .. 3] {
+  mov %dst[$i], %src[$i]
+};
+```
