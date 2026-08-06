@@ -268,6 +268,11 @@ low part.
 assigns the bit variable \\(x\\) by \\(0\\).
 \\(\ishl x a n\\) shifts the source atom \\(a\\) left by \\(n\\) and stores the
 results in \\(x\\).
+The number of shifts \\(n\\) is an atom and need not be a constant.
+A non-constant \\(n\\) is still checked for safety and carried by the
+range specification, but the algebraic abstraction drops the
+instruction and warns that it has done so, leaving \\(x\\) unrelated to
+\\(a\\); the same holds of \\(\ishr\\) and \\(\isar\\).
 \\(\ishls o x a n\\) is the same as \\(\ishls x a n\\) except that the bits
 shifted out are stored in \\(o\\).
 \\(\ishr x a n\\) shifts the source atom \\(a\\) right logically by \\(n\\) and
@@ -339,18 +344,18 @@ with arguments \\(a_1, a_2, \ldots, a_n\\).
          & \mid & \pmb\inondet\ \lval \\\\
          & \mid & \pmb\iset\ \lval
          & \mid & \pmb\iclear\ \lval \\\\
-         & \mid & \pmb\ishl\ \lval\ \atom\ \const
+         & \mid & \pmb\ishl\ \lval\ \atom\ \atom
          & \mid & \pmb\ishls\ \lval\ \lval\ \atom\ \const \\\\
-         & \mid & \pmb\ishr\ \lval\ \atom\ \const
+         & \mid & \pmb\ishr\ \lval\ \atom\ \atom
          & \mid & \pmb\ishrs\ \lval\ \lval\ \atom\ \const \\\\
-         & \mid & \pmb\isar\ \lval\ \atom\ \const
+         & \mid & \pmb\isar\ \lval\ \atom\ \atom
          & \mid & \pmb\isars\ \lval\ \lval\ \atom\ \const \\\\
          & \mid & \pmb\icshl\ \lval\ \lval\ \atom\ \atom\ \const \\\\
          & \mid & \pmb\icshr\ \lval\ \lval\ \atom\ \atom\ \const
          & \mid & \pmb\icshrs\ \lval\ \lval\ \lval\ \atom\ \atom\ \const \\\\
          & \mid & \pmb\ispl\ \lval\ \lval\ \atom\ \const
          & \mid & \pmb\isplit\ \lval\ \lval\ \atom\ \const \\\\
-         & \mid & \pmb\ijoin\ \lval\ \lval\ \atom\ \const \\\\
+         & \mid & \pmb\ijoin\ \lval\ \atom\ \atom \\\\
          & \mid & \pmb\iand\ \lval\ \atom\ \atom
          & \mid & \pmb\ior\ \lval\ \atom\ \atom \\\\
          & \mid & \pmb\ixor\ \lval\ \atom \atom
