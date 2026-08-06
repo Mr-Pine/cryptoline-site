@@ -441,6 +441,12 @@ replicate \\(c\\).
 \\(v_1\ \catop\ v_2\\) concatenates two vectors, the elements of \\(v_1\\)
 coming first; both must have the same element type.
 \\(v\ \catop\ c\\) duplicates \\(v\\) \\(c\\) times.
+The right operand tells the two apart: a bare constant is a repetition
+count, while a constant vector is a vector, so \\(v\ \catop\ 2\\) is \\(v\\)
+twice whereas \\(v\ \catop\ 2 @ \uint{64}[1]\\) appends a single element
+holding \\(2\\).
+Concatenation is left associative, so \\(v_1\ \catop\ v_2\ \catop\ 2\\)
+duplicates the whole concatenation rather than \\(v_2\\) alone.
 Only a vector variable and a vector literal may be assigned to.
 A selection, a concatenation, a duplication, and a constant vector are
 read-only and are rejected as destinations.
@@ -516,6 +522,12 @@ Vectors may also appear in predicates.
 An equality or a comparison between two vectors holds element-wise, in
 both the algebraic and the range parts, and the modular suffixes of an
 equality accept vectors as their moduli.
+Vector expressions are concatenated with \\(\catop\\) in both parts and,
+in the algebraic part, duplicated by a constant right operand as vector
+atoms are; a range expression has no duplication form.
+Here \\(\catop\\) binds as \\(\pmb\addop\\) does and is left associative, so
+\\(v_1\ \pmb\addop\ v_2\ \catop\ v_3\\) concatenates the element-wise sum
+with \\(v_3\\).
 In a range expression, \\(\ijoin\ v\\) concatenates all elements of \\(v\\),
 from low to high, into a single bit-vector, and \\(\mathit{concat}\\)
 concatenates two vectors element-wise.
