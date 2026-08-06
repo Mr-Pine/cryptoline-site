@@ -107,10 +107,16 @@ low part.
 `shl x a n` shifts the source atom `a` left by `n` and stores the
 results in `x`.
 
+A constant `n` ranges from `0`, which copies `a` unchanged, up to but
+excluding the width of `a`. The same holds of `shr` and `sar`.
+
 
 ### shls
 `shls o x a n` is the same as `shls x a n` except that the bits
 shifted out are stored in `o`.
+
+Here `n` must be positive, since `o` holds the `n` bits shifted out and
+no variable is zero bits wide. The same holds of `shrs` and `sars`.
 
 
 ### shr
@@ -156,6 +162,9 @@ except that the bits shifted out are stored in `o`.
 `spl xh xl a n` splits the source atom `a` at position `n`, stores
 the high bits in `xh`, and stores the low bits in `xl`.
 
+Here `n` must lie strictly between `0` and the width of `a`, since
+either end would leave one destination zero bits wide.
+
 
 ### split
 `split xh xl a n` is the same as `spl` except that the high bits `xh` and the low
@@ -163,6 +172,12 @@ bits `xl` are extended to the size of `a`.
 
 While the low bits are always zero extended, the high bits are sign
 extended if `a` is signed and otherwise zero extended.
+
+Since both destinations are as wide as `a`, `n` may be `0`, which puts
+all of `a` in `xh` and leaves `xl` zero, or the width of `a`, which puts
+all of `a` in `xl` and leaves `xh` zero. The latter needs an unsigned
+`xh`: for a signed `a` it would hold the sign of `a` repeated, which no
+single instruction produces.
 
 
 ### join
