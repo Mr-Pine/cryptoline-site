@@ -672,7 +672,7 @@ Finally, the \\(\xeightysix\\) instruction `shlx r s d` and
 right respectively by the value in `r`. The shifted
 result is stored in `d`. In \\(\cryptoline\\), the
 `shl d s c` shifts the value of
-`s` by the constant `c` bits to the
+`s` by `c` bits to the
 left. The `split h l s c`
 command splits `s` by the constant `c`
 into two parts: the lowest `c` bits are stored in
@@ -684,9 +684,13 @@ It is tempting to use the following rules:
 #! shrx $1v, $2v, $3v -> split $3v dc $2v $1v
 ```
 
-There is a problem in these rules. The `shl` and
-`split` commands only allow constant shifting and splitting. We
-need to change the variable `$1v` to a constant. After
+There is a problem in these rules. The `split` command only allows a
+constant splitting position, so the rule for `shrx` does not even
+parse. The `shl` command does accept a variable number of shifts, but
+the CAS-based engine ignores a `shl` whose number of shifts is not
+constant, warning that it does so, and then relates `$3v` to `$2v` by
+nothing at all. We need to change the variable `$1v` to a constant.
+After
 examining `ecp_nistz256_mul_mont`, we see the first argument of all `shlx`
 and `shrx` instructions is always `%r14`. Moreover,
 `%r14` is set to `$0x20` and never changed. We can ask
@@ -721,8 +725,10 @@ in the CAS-based engine. Two different
 interpretations need to be related, otherwise their results may differ
 unexpectedly. To relate both interpretations of `shl`,
 \\(\cryptoline\\) checks safety conditions to see if information
-might be lost in the command. For `shl`, the safety condition
-is that only zeros are shifted out. Thus both interpretations
+might be lost in the command. For `shl` with an unsigned destination,
+the safety condition is that only zeros are shifted out; with a signed
+destination it is that every bit shifted out is a copy of the sign
+bit. Either way nothing is lost and both interpretations
 coincide. In `ecp_nistz256_mul_mont`, this is not the case. We need to translate the
 \\(\xeightysix\\) `shlx` instruction differently to avoid the safety
 condition failure.
